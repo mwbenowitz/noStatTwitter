@@ -7,7 +7,7 @@
 	"author": "Mike Benowitz",
 
 	"browser_action":{
-		"default_icon": "ns_icon_xs.png",
+		"default_icon": "icons/ns_icon_xs.png",
 		"default_popup": "main.html"
 	},
 	"permissions": [
