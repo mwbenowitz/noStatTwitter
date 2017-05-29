@@ -1,0 +1,32 @@
+/*
+ * SimpleTweet
+ * by Michael Benowitz
+ * This just hides a bunch of elements on Twitter to make it suck less
+ * Yeah that's all, why didn't you think of it first? (Actual credit to Maddie Crum for this idea)
+ */
+
+ .ProfileCardStats-statList, .tweet-stats-container, .ProfileTweet-actionList {
+ 	display: none !important;
+ }
+
+.btn-simple{
+	font-size: 12px !important;
+	padding: 3px 6px !important;
+	background-color: #aab8c2;
+	color: #fff !important;
+	position: relative;
+	left: -30px;
+	bottom: 3px;
+	border-radius: 4px;
+}
+
+.profileHider{
+	width: 266px;
+	background-color: #aab8c2;
+	padding: 5px 0px;
+	text-align: center;
+	color: #fff !important;
+	margin: 0;
+	border-radius: 4px;
+
+}
