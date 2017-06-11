@@ -18,60 +18,67 @@ var enabled = true
 chrome.storage.local.get('enabled', function(enabled){
 	enabled = enabled['enabled'];
 	if(enabled == true){
+		// Create a list of tweets that are initially loaded. This prevents us from running the obscure function more than once
+		statElements = Array.from(document.querySelectorAll('.ProfileTweet-actionList'));
+
+		// Create a main observer that will run on the whole document
+		// NOTE: This must carefully check where it triggers DOM editing to avoid killing performance on the page
+		var centralObservation = new MutationObserver(function(mutations){
+			mutations.forEach(function(mutation){
+				var targetNode = mutation.target;
+				var newNodes = mutation.addedNodes;
+				// This is an important checker for when Twitter only loads its main app, instead of a new page load
+				// Otherwise the observers will not fire on initial load
+				newNodes.forEach(function(newNode){
+					if(newNode.nodeType == 1){
+						if(newNode.matches('.AppContainer')){
+							allStatElements = Array.from(document.querySelectorAll('.ProfileTweet-actionList'));
+							curStatElements = allStatElements.filter(function(e){
+								return this.indexOf(e) < 0;
+							}, statElements)
+							obscureStats(curStatElements);
+							statElements = allStatElements;
+							var popStats = targetNode.querySelectorAll('.ProfileCardStats')[0]
+							if(popStats){
+								obscureProfile(popStats);
+							}
+						}
+					}
+				});
+				// This is the main observer stuff that checks for changes dynamically as users navigate Twitter
+				if(targetNode.nodeType == 1){
+					if(targetNode.matches('#timeline') || targetNode.matches('.PermalinkOverlay-body') || targetNode.matches('.GalleryTweet') || targetNode.matches('.stream-items')){
+						console.log('This is matching a timeline');
+						allStatElements = Array.from(document.querySelectorAll('.ProfileTweet-actionList'));
+						curStatElements = allStatElements.filter(function(e){
+							return this.indexOf(e) < 0;
+						}, statElements)
+						obscureStats(curStatElements);
+						statElements = allStatElements;
+					}else if(targetNode.matches('#profile-hover-container')){
+						console.log('This is matching a profile container');
+						var popStats = targetNode.querySelectorAll('.ProfileCardStats')[0]
+						if(popStats){
+							obscureProfile(popStats);
+						}
+					}
+				}
+			});
+		});
+		// Fire up central observation
+		centralObservation.observe(document.documentElement, {childList: true, subtree: true});
+		
+		// This sets an initial scan of the DOM when users first hit Twitter.
+		// It also manages click events to show/hide the stats themselves
 		docReady(function(){
 			//Fire the obsure function first, then create observer
 			statElements = Array.from(document.querySelectorAll('.ProfileTweet-actionList'));
 			obscureStats(statElements);
-			document.querySelectorAll('.ProfileTweet-actionList').forEach(function(actionList){
-				actionList.setAttribute('style', 'display:inline-block !important');
-			});
 			//Obscure profile stats too
 			profileStats = document.querySelectorAll('.ProfileCardStats')[0]
 			if (profileStats){
 				obscureProfile(profileStats);
 			}
-			// Block stuff in the main timeline on change
-			// Also block stuff in the popover and gallery
-			var timeline = document.getElementById('stream-items-id');
-			var permalink = document.querySelectorAll('.PermalinkOverlay-body')[0];
-			var gallery = document.querySelectorAll('.GalleryTweet')[0];
-			var tweetObserver = new MutationObserver(function(mutations){
-				mutations.forEach(function(mutation){
-					allStatElements = Array.from(document.querySelectorAll('.ProfileTweet-actionList'));
-					curStatElements = allStatElements.filter(function(e){
-						return this.indexOf(e) < 0;
-					}, statElements)
-					obscureStats(curStatElements);
-					statElements = allStatElements;
-				});
-			});
-
-
-			// Setup an observer for the profile pop-overs
-			var profilePop = document.getElementById('profile-hover-container');
-			var profileObserver = new MutationObserver(function(mutations){
-				mutations.forEach(function(mutation){
-					var popStats = profilePop.querySelectorAll('.ProfileCardStats')[0]
-					obscureProfile(popStats);
-				});
-			});
-
-			// Config for the observers. Simple now but could get more complex in the future
-			var config = {
-				childList: true,
-				subtree: true
-			};
-
-			var popConfig = {
-				childList: true
-			};
-
-			// Start up the observers
-			tweetObserver.observe(timeline, config);
-			tweetObserver.observe(permalink, config);
-			tweetObserver.observe(gallery, config);
-			profileObserver.observe(profilePop, popConfig);
-
 			// Allow users to toggle stats per tweet
 			document.addEventListener('click', function(event){
 				if (event.target.classList[1] == 'showStatsButton') {
@@ -86,6 +93,7 @@ chrome.storage.local.get('enabled', function(enabled){
 				}
 			});
 		});
+		
 	} else {
 		document.body.innerHTML += '<style>.ProfileCardStats-statList, .tweet-stats-container, .ProfileTweet-actionList{display: block !important } </style>';
 	}
@@ -145,10 +153,5 @@ var showProfile = function(profileContainer, profileButton){
 }
 
 var docReady = function(fn){
-	if(typeof fn != 'function' ) return;
-
-	if(document.readyState === 'complete'){
-		return fn();
-	}
-	document.addEventListener('interactive', fn, false);
+	document.readyState === 'complete' || document.readyStat === 'interactive' ? fn() : document.addEventListener('DOMContentLoaded', fn);
 }

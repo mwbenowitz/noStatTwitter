@@ -8,6 +8,7 @@ chrome.storage.local.get('enabled', function(enabled){
 		statButton.innerHTML = 'noStat Enabled';
 		statButton.className = 'noStatToggleEnabled';
 	} else {
+		chrome.storage.local.set({'enabled': enabled});
 		statButton.setAttribute('data-noStat', 'false');
 		statButton.innerHTML = 'noStat Disabled';
 		statButton.className = 'noStatToggleDisabled';
