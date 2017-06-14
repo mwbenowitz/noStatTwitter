@@ -12,7 +12,7 @@ var statElements = []
 var newStatElements = []
 var allStatElements = []
 var enabled = true
-
+var doOnce = false
 // Check to see if the extension is enabled
 // If it is run the extension on the page
 chrome.storage.local.get('enabled', function(enabled){
@@ -95,7 +95,10 @@ chrome.storage.local.get('enabled', function(enabled){
 		});
 		
 	} else {
-		document.body.innerHTML += '<style>.ProfileCardStats-statList, .tweet-stats-container, .ProfileTweet-actionList{display: block !important } </style>';
+		if(doOnce == false){
+			document.body.innerHTML += '<style>.ProfileCardStats-statList, .tweet-stats-container, .ProfileTweet-actionList{display: block !important } </style>';
+			doOnce == true
+		}
 	}
 });
 

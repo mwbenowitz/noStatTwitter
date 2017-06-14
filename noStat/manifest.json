@@ -3,7 +3,7 @@
 	"name": "Block Twitter Stats",
 	"short_name": "noStat",
 	"description": "Hide retweets, likes, replies and user stats from appearing in your Twitter feed",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"author": "Mike Benowitz",
 
 	"browser_action":{
