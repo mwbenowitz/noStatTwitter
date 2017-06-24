@@ -50,6 +50,7 @@ document.addEventListener('click', function(event){
 		}
 		chrome.storage.local.set({'enabled': enabled});
 		reloadCurrentTab();
+		window.close();
 	}
 });
 

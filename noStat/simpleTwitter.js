@@ -96,8 +96,9 @@ chrome.storage.local.get('enabled', function(enabled){
 		
 	} else {
 		if(doOnce == false){
+			console.log('This should only run once');
 			document.body.innerHTML += '<style>.ProfileCardStats-statList, .tweet-stats-container, .ProfileTweet-actionList{display: block !important } </style>';
-			doOnce == true
+			doOnce = true;
 		}
 	}
 });
